@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>How do you want to place a call?</h1>
+
+
+<FORM NAME="myform" ACTION="" METHOD="GET">Enter phone number: <BR>
+<INPUT TYPE="text" NAME="inputbox" VALUE=""><P>
+
+<p>Click the button to trigger a function that will place a demo phone call".</p>
+
+<INPUT TYPE="button" NAME="button" Value="Call me" onClick="myFunction(this.form)">
+<INPUT TYPE="button" NAME="button" Value="Anonymous Call" onClick="myFunction2(this.form)">
+
+
+<p id="demo"></p>
+
+<script>
+function myFunction(form) {
+var num = form.inputbox.value;
+  window.open("Tel: " + num);
+}
+function myFunction2(form) {
+var num = form.inputbox.value;
+const data = { key: '3197058016010', value: num  };
+
+fetch('https://flows.messagebird.com/databases/key-values/', {
+  method: 'POST', // or 'PUT'
+  headers: {
+    'Content-Type': 'application/json',
+	'Authorization': 'AccessKey rdN60qWlij0i80JB9RyrBl5bM',
+  },
+  body: JSON.stringify(data),
+},{mode: 'no-cors'})
+.then(response => response.json())
+.then(data => {
+  console.log('Success:', data);
+})
+.catch((error) => {
+  console.error('Error:', error);
+});
+window.open('tel:3197058016010');
+}
+</script>
+
+</body>
+</html>
