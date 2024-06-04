@@ -2,8 +2,42 @@
 
 <html lang="en">
 <head>
-  <script defer type="module" src="https://embeddables.p.mbirdcdn.net/v1/web-components.es.js"></script>
+<script>
+  defer type="module" src="https://embeddables.p.mbirdcdn.net/v1/web-components.es.js
+  // Function to wait for the chat widget to load
+  function waitForChatLoad() {
+    return new Promise((resolve) => {
+      if (document.querySelector('messagebird-chat')) {
+        return resolve(document.querySelector('messagebird-chat'));
+      }
+      const observer = new MutationObserver(() => {
+        if (document.querySelector('messagebird-chat')) {
+          observer.disconnect();
+          resolve(document.querySelector('messagebird-chat'));
+        }
+      });
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    });
+  }
 
+  // Set the chat widget attributes
+  waitForChatLoad().then((chat) => {
+    chat.onLoad(() => {
+      window.mbchat.setAttributes({
+        user: {
+          userName: 'johnDoe99',
+          firstName: 'John',
+        },
+        company: {
+          name: 'Company Inc.',
+        },
+      });
+    });
+  });
+</script>
 
   <style>
 body {
