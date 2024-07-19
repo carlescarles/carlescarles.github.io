@@ -29,13 +29,14 @@
 ></script>
 
 <script>
+	if (!window.Bird.contact.contactId){
 window.Bird.contact.identify({
 	strategy: 'Visitor',
 	identifier: {
 		key: 'emailaddress',
 		value: 'carles.ferrater@bird.com',
 	},
-});
+});}
 window.Bird.tracker.ecommerce.productViewed({product_image_url: "https://www.bird.com/image.jpg", product_url: "https://www.bird.com/messaging", price: 1});
 </script>
 </body>
