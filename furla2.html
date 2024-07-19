@@ -34,13 +34,12 @@
 // the contact's subscription status at the same time if it's a new
 // contact.
 window.Bird.contact.identify({ strategy: 'Visitor', identifier: { key: "emailaddress", value: "michael@example.com" }, }, { subscribedEmail: true })
-}
-
-  window.Bird.tracker.ecommerce.productViewed({product_image_url: "https://www.bird.com/image.jpg", product_url: "https://www.bird.com/messaging", price: 1})
-  </script>
+}</script>
 
       <a href="">
           <img class="img" src="https://i.postimg.cc/mgJqHg12/Screenshot-2024-07-19-at-2-46-25-PM.png" alt="image at bottom">
       </a>
+
+	<script> window.Bird.tracker.ecommerce.productViewed({product_image_url: "https://www.bird.com/image.jpg", product_url: "https://www.bird.com/messaging", price: 1})</script>
 </body>
 </html>
