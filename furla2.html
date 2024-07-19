@@ -29,6 +29,13 @@
   data-config-url="https://api.bird.com/workspaces/4e472cf6-6c8b-4dc0-92cb-bc671ab724e2/applications/10e52ff4-aed7-4b56-8423-ec0ec84f33a0/signature/2024-06-17T17-12-51_1c4bd8de2e"
   </script>
   <script>
+    if (!window.Bird.contact.contactId){
+	// Pick one of the following based on the identifier type. You can set
+// the contact's subscription status at the same time if it's a new
+// contact.
+window.Bird.contact.identify({ strategy: 'Visitor', identifier: { key: "emailaddress", value: "michael@example.com" }, }, { subscribedEmail: true })
+}
+
   window.Bird.tracker.ecommerce.productViewed({product_image_url: "https://www.bird.com/image.jpg", product_url: "https://www.bird.com/messaging", price: 1})
   </script>
 
