@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Airia Embed</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+        import AiriaChat from "https://mena.chat.airia.ai/api/get-chat-embed"
+        AiriaChat.init({pipelineId: "b4825f19-92a1-4a86-b38e-11129903aa7f", apiKey: "ak-NDMwMzg1MDc4fDE3NDQ3MjA5NDg0MjV8VGFrYWZ1bCBFbWFyYXQgSW5zdXJhbmNlLXwxfDI2NDk0MTQ2MDMg", chatHost: "https://mena.chat.airia.ai", greeting: "Hello! How can I assist you today?", imagePath: "https://yoursite.com/assets/chatbot-icon.png", imageSize: "small"})
+    </script>
+  </body>
+</html>
