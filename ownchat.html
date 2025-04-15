@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .chat-container {
+            width: 300px;
+            height: 400px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .message {
+            margin-bottom: 5px;
+        }
+        .message.user {
+            background-color: #f0f0f0;
+            padding: 5px;
+            border-radius: 5px;
+            align-self: flex-start;
+        }
+        .message.bot {
+            background-color: #e0f0f0;
+            padding: 5px;
+            border-radius: 5px;
+            align-self: flex-end;
+        }
+        .input-area {
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    const chatMessagesElement = document.getElementById('chatMessages');
+    const userInputElement = document.getElementById('userInput');
+    const apiEndpoint = 'https://demo.api.airia.ai/v1/PipelineExecution/1cbb28a5-9930-4f19-9aa4-9cee8b4680cb';
+    const apiKey = 'YOUR_API_KEY';
+    let conversationContext = [];
+
+    function sendMessage() {
+        const userInput = userInputElement.value.trim();
+        if (userInput) {
+            // Display user's message
+            displayMessage(userInput, 'user');
+            // Clear input field
+            userInputElement.value = '';
+            // Add user's message to conversation context
+            conversationContext.push({ role: 'user', text: userInput });
+            // Call API
+            callApi(userInput);
+        }
+    }
+
+    function callApi(userInput) {
+        fetch(apiEndpoint, {
+            method: 'POST',
+            headers: {
+                'X-API-KEY': 'ak-MjI5ODI3MzY5OXwxNzQ0NzI0MzMwODg1fFNFc3wxfDIwNTMwMTY2NTYg',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userInput: userInput,
+                conversationHistory: conversationContext
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Assuming the response text is in a field named 'response' or similar
+            const botResponse = data.response || 'No response received';
+            // Add bot's response to conversation context
+            conversationContext.push({ role: 'bot', text: botResponse });
+            // Display bot's response
+            displayMessage(botResponse, 'bot');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function displayMessage(message, type) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', type === 'user' ? 'user' : 'bot');
+        messageElement.textContent = message;
+        chatMessagesElement.appendChild(messageElement);
+        // Scroll to the bottom of the chat messages area
+        chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
