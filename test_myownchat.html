@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget with Session Memory</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #chat-container {
+            width: 300px;
+            height: 400px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        #chat-log {
+            padding: 10px;
+        }
+        #input-field {
+            padding: 10px;
+        }
+        #send-button {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #send-button:hover {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-log"></div>
+        <div id="input-field">
+            <input type="text" id="user-input" placeholder="Type a message...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const chatLog = document.getElementById('chat-log');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+
+        let conversationHistory = [];
+        const apiEndpoint = 'https://demo.api.airia.ai/v1/PipelineExecution/1cbb28a5-9930-4f19-9aa4-9cee8b4680cb';
+        const apiKey = 'YOUR_API_KEY';
+        const userId = 'YOUR_USER_ID';
+
+        sendButton.addEventListener('click', async () => {
+            const userMessage = userInput.value.trim();
+            if (userMessage) {
+                conversationHistory.push({ role: 'user', text: userMessage });
+                chatLog.innerHTML += `<p>User: ${userMessage}</p>`;
+
+                try {
+                    const response = await fetch(apiEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'X-API-KEY': apiKey,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            userId,
+                            userInput: userMessage,
+                            conversationHistory,
+                            asyncOutput: false
+                        })
+                    });
+
+                    const data = await response.json();
+                    const botResponse = data.output;
+                    conversationHistory.push({ role: 'bot', text: botResponse });
+                    chatLog.innerHTML += `<p>Bot: ${botResponse}</p>`;
+
+                    userInput.value = '';
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
