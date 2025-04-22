@@ -1,22 +1,15 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Takaful - Airia sample</title>
-  <style>
-    body {
-      background-image: url('https://i.postimg.cc/KjMLPVzS/Screenshot-2025-04-15-at-4-53-59-PM.png'); /* Replace with your image URL */
-      background-size: cover; /* Optional, adjust as needed */
-      background-position: center; /* Optional, adjust as needed */
-    }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module">
-    import AiriaChat from "https://mena.chat.airia.ai/api/get-chat-embed"
-    AiriaChat.init({pipelineId: "b4825f19-92a1-4a86-b38e-11129903aa7f", apiKey: "ak-NDMwMzg1MDc4fDE3NDQ3MjA5NDg0MjV8VGFrYWZ1bCBFbWFyYXQgSW5zdXJhbmNlLXwxfDI2NDk0MTQ2MDMg", chatHost: "https://mena.chat.airia.ai", greeting: "Hello! How can I assist you today?", imagePath: "https://i.postimg.cc/dtQwTCSn/Round-Chat-Icon.png", imageSize: "small"})
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Airia Embed</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+        import AiriaChat from "https://mena.chat.airia.ai/api/get-chat-embed"
+        AiriaChat.init({pipelineId: "fcd5b4fc-5962-439f-a253-d9053fb2df3f", apiKey: "ak-MzMzOTgxNTQ5OXwxNzQ1Mjk5MjUwMzc1fEFpcmlhfDF8ODQyNjMxNjQ4", apiUrl: "https://mena.api.airia.ai", greeting: "Hello! How can I assist you today?", imagePath: "https://yoursite.com/assets/chatbot-icon.png", imageSize: "small"})
+    </script>
+  </body>
 </html>
