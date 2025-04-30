@@ -5,85 +5,149 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dubai Leisure & Entertainment</title>
     <style>
-        /* Basic Reset */
+        /* Basic Reset & Body Styling */
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
-        /* Minimalist Styling */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            color: #333;
             background-color: #f8f9fa; /* Light grey background */
+            color: #333;
             padding: 20px;
         }
 
+        /* Container */
         .container {
-            max-width: 800px;
-            margin: 40px auto;
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #ffffff; /* White background for content */
             padding: 30px;
-            background-color: #ffffff; /* White content area */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        header {
+        /* Header */
+        header h1 {
+            text-align: center;
+            color: #007bff; /* A touch of blue */
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        /* Gallery Section */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .gallery img {
+            width: 100%;
+            height: 200px; /* Fixed height */
+            object-fit: cover; /* Crop images nicely */
+            border-radius: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery img:hover {
+            transform: scale(1.03);
+        }
+
+        /* Intro Text */
+        .intro p {
             text-align: center;
             margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        header h1 {
-            font-size: 2.5em;
-            color: #007bff; /* Simple blue accent */
-            font-weight: 300; /* Lighter font weight */
-        }
-
-        h2 {
-            font-size: 1.8em;
-            color: #333;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-weight: 400;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-        }
-
-        p, ul {
-            margin-bottom: 15px;
             color: #555;
+            font-size: 1.1em;
         }
 
-        ul {
-            list-style: disc;
-            padding-left: 20px;
+        /* Chat Section */
+        #chat-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden; /* Keep contents contained */
+            margin-top: 30px;
+            background-color: #fdfdfd;
         }
 
-        li {
-            margin-bottom: 8px;
+        #chat-output {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #f8f9fa; /* Slightly different background */
+            border-bottom: 1px solid #e0e0e0;
         }
 
+        .message {
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word; /* Prevent long words from overflowing */
+        }
+
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto; /* Align right */
+            border-bottom-right-radius: 5px; /* Slight visual cue */
+        }
+
+        .bot-message {
+            background-color: #e9ecef;
+            color: #333;
+            margin-right: auto; /* Align left */
+            border-bottom-left-radius: 5px; /* Slight visual cue */
+        }
+
+        #chat-input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            margin-right: 10px;
+            outline: none;
+        }
+
+        #send-button {
+            padding: 10px 20px;
+            background-color: #28a745; /* Green send button */
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #send-button:hover {
+            background-color: #218838;
+        }
+
+        /* Loading Indicator */
+        .loading-indicator {
+            text-align: center;
+            padding: 10px;
+            font-style: italic;
+            color: #888;
+        }
+
+        /* Footer */
         footer {
             text-align: center;
             margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            font-size: 0.9em;
             color: #aaa;
-        }
-
-        /* Style for links (optional) */
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
+            font-size: 0.9em;
         }
 
     </style>
@@ -92,66 +156,139 @@
 
     <div class="container">
         <header>
-            <h1>Discover Dubai</h1>
-            <p>Your Gateway to Unforgettable Leisure & Entertainment</p>
+            <h1>Dubai Vibes: Leisure & Fun</h1>
         </header>
 
-        <main>
-            <section id="introduction">
-                <p>Dubai offers a dazzling array of attractions, blending modern marvels with rich cultural experiences. From soaring skyscrapers to pristine beaches and world-class shopping, there's something for everyone.</p>
-            </section>
+        <section class="intro">
+            <p>Experience the dazzling lifestyle, world-class entertainment, and luxurious leisure options Dubai has to offer.</p>
+        </section>
 
-            <section id="attractions">
-                <h2>Iconic Landmarks</h2>
-                <ul>
-                    <li>Burj Khalifa: Ascend the world's tallest building for breathtaking views.</li>
-                    <li>The Dubai Mall: Explore one of the largest shopping malls globally, featuring an aquarium and ice rink.</li>
-                    <li>Dubai Fountain: Witness spectacular water and light shows.</li>
-                    <li>Palm Jumeirah: Discover the man-made island with luxury resorts and attractions.</li>
-                </ul>
-            </section>
+        <section class="gallery">
+            <!-- Replace with your actual Dubai images -->
+            <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Dubai Skyline at Night">
+            <img src="https://images.unsplash.com/photo-1582672060674-bc2bd808a8b7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Dubai Desert Safari">
+            <img src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Dubai Mall Aquarium">
+            <img src="https://images.unsplash.com/photo-1518684079-3c830dcef494?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Burj Al Arab">
+        </section>
 
-            <section id="entertainment">
-                <h2>Thrilling Entertainment</h2>
-                <ul>
-                    <li>Theme Parks: Experience adrenaline-pumping rides at IMG Worlds of Adventure or Dubai Parks and Resorts.</li>
-                    <li>Desert Safaris: Enjoy dune bashing, camel riding, and traditional Bedouin camps.</li>
-                    <li>Water Parks: Cool off at Aquaventure or Wild Wadi Waterpark.</li>
-                    <li>Live Shows: Catch world-class performances at Dubai Opera or La Perle.</li>
-                </ul>
-            </section>
+        <section id="chat-section">
+            <h2>Ask about Dubai!</h2>
+            <div id="chat-container">
+                <div id="chat-output">
+                    <!-- Chat messages will appear here -->
+                     <div class="message bot-message">Hello! Ask me anything about Dubai's leisure and entertainment scene.</div>
+                </div>
+                 <div id="loading" class="loading-indicator" style="display: none;">Thinking...</div>
+                <div id="chat-input-area">
+                    <input type="text" id="user-input" placeholder="Type your message...">
+                    <button id="send-button">Send</button>
+                </div>
+            </div>
+        </section>
 
-            <section id="relaxation">
-                <h2>Relaxation & Beaches</h2>
-                <ul>
-                    <li>JBR Beach (Jumeirah Beach Residence): A lively beachfront with cafes and activities.</li>
-                    <li>Kite Beach: Popular spot for watersports and stunning Burj Al Arab views.</li>
-                    <li>Luxurious Spas: Unwind and rejuvenate at numerous high-end spa facilities.</li>
-                </ul>
-            </section>
-        </main>
-
-        <footer>
-            <p>© 2023 Dubai Leisure Explorer. Your adventure starts here.</p>
-        </footer>
     </div>
 
-    <!-- === AIRIA CHATBOT EMBED CODE START === -->
-    <!-- IMPORTANT: The 'imagePath' below is a placeholder. -->
-    <!-- Replace 'https://yoursite.com/assets/chatbot-icon.png' with a valid URL to your icon, -->
-    <!-- or remove the 'imagePath' parameter if a default icon is acceptable. -->
-    <script type="module">
-        import AiriaChat from "https://mena.chat.airia.ai/api/get-chat-embed"
-        AiriaChat.init({
-            pipelineId: "05d111e2-044a-4c7d-a573-ececf102eba2",
-            apiKey: "ak-MzUzNzA2ODMxfDE3NDYwNDQyOTY1NTR8QWlyaWF8MXwyODk1Mzg5MjU0",
-            apiUrl: "https://mena.embed-api.airia.ai",
-            greeting: "Hello! How can I assist you with Dubai leisure and entertainment?", /* Customized Greeting */
-            imagePath: "https://yoursite.com/assets/chatbot-icon.png", /* Placeholder - Replace or Remove */
-            imageSize: "small"
-        })
+    <footer>
+        <p>© 2023 Dubai Vibes. Minimalist Demo.</p>
+    </footer>
+
+    <script>
+        const chatOutput = document.getElementById('chat-output');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const loadingIndicator = document.getElementById('loading');
+
+        // --- API Configuration ---
+        // WARNING: Exposing API keys client-side is insecure for production!
+        const API_URL = "https://mena.api.airia.ai/v2/PipelineExecution/05d111e2-044a-4c7d-a573-ececf102eba2";
+        const API_KEY = "ak-MzUzNzA2ODMxfDE3NDYwNDQyOTY1NTR8QWlyaWF8MXwyODk1Mzg5MjU0"; // Replace with your actual key if needed, but be aware of security risks.
+        // --- End API Configuration ---
+
+        // Function to display messages in the chat window
+        function displayMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            messageDiv.textContent = text;
+            chatOutput.appendChild(messageDiv);
+            // Scroll to the bottom
+            chatOutput.scrollTop = chatOutput.scrollHeight;
+        }
+
+        // Function to show/hide loading indicator
+        function showLoading(isLoading) {
+             loadingIndicator.style.display = isLoading ? 'block' : 'none';
+             sendButton.disabled = isLoading;
+             userInput.disabled = isLoading;
+        }
+
+        // Function to call the Airia API
+        async function callAiriaAPI(userText) {
+            showLoading(true);
+            const requestBody = {
+                userInput: userText,
+                asyncOutput: false // Keep this false for immediate response
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'X-API-KEY': API_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    // Handle HTTP errors (e.g., 4xx, 5xx)
+                    console.error("API Error HTTP Status:", response.status);
+                    const errorText = await response.text(); // Try to get error details
+                    console.error("API Error Response:", errorText);
+                    displayMessage('bot', `Sorry, there was an error contacting the service (Status: ${response.status}). Please try again later.`);
+                    showLoading(false);
+                    return; // Stop execution here
+                }
+
+                const data = await response.json();
+
+                if (data && data.result) {
+                    displayMessage('bot', data.result);
+                } else {
+                    console.error("Unexpected API response format:", data);
+                    displayMessage('bot', 'Sorry, I received an unexpected response. Please try again.');
+                }
+
+            } catch (error) {
+                console.error("Network or other error calling API:", error);
+                displayMessage('bot', 'Sorry, I couldn\'t connect to the chat service. Please check your connection and try again.');
+            } finally {
+                 showLoading(false); // Hide loading indicator regardless of success or failure
+            }
+        }
+
+        // Function to handle sending a message
+        function handleSendMessage() {
+            const userText = userInput.value.trim();
+            if (userText) {
+                displayMessage('user', userText);
+                userInput.value = ''; // Clear input field
+                callAiriaAPI(userText); // Call the API
+            }
+        }
+
+        // Event Listeners
+        sendButton.addEventListener('click', handleSendMessage);
+
+        userInput.addEventListener('keypress', function(event) {
+            // Check if Enter key was pressed (key code 13)
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                event.preventDefault(); // Prevent default form submission (if it were in a form)
+                handleSendMessage();
+            }
+        });
+
     </script>
-    <!-- === AIRIA CHATBOT EMBED CODE END === -->
 
 </body>
 </html>
