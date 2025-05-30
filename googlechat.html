@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .chat-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+            max-height: 700px;
+        }
+
+        #chat-header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            text-align: center;
+        }
+        #chat-header h2 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+        #chat-header p, #chat-header small {
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        #api-key-status {
+            font-weight: bold;
+        }
+
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            border-bottom: 1px solid #eee;
+            border-top: 1px solid #eee;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+            display: flex; /* Added for alignment */
+        }
+
+        .message.user {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            margin-left: auto; /* Pushes to the right */
+        }
+
+        .message.bot, .message.bot-typing, .message.system {
+            background-color: #e9ecef;
+            color: #333;
+            align-self: flex-start;
+            margin-right: auto; /* Pushes to the left */
+        }
+        .message.system {
+            font-style: italic;
+            color: #555;
+            background-color: #f8f9fa;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            margin-right: 10px;
+            outline: none;
+        }
+
+        #send-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #send-button:hover {
+            background-color: #218838;
+        }
+        #send-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #performance-info {
+            padding: 10px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chat-header">
+            <h2>Airia Chatbot</h2>
+            <p>API Key Status: <span id="api-key-status">NOT SET</span></p>
+            <small>Remember to replace the placeholder API key in this file!</small>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <!-- Chat messages will appear here -->
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-button">Send</button>
+        </div>
+        <div id="performance-info">
+            Last response time: <span id="response-time">N/A</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatMessages = document.getElementById('chat-messages');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+            const responseTimeDisplay = document.getElementById('response-time');
+            const apiKeyStatusDisplay = document.getElementById('api-key-status');
+
+            // --- CONFIGURATION ---
+            const API_URL = "https://mena.api.airia.ai/v2/PipelineExecution/8f032c7e-a851-4d02-907a-93fe61200bad";
+            // IMPORTANT: Replace with your actual API key
+            const AIRIA_API_KEY = "ak-MTg1MjUzMzA1fDE3NDcyMDUyMzQ2MDB8VGFrYWZ1bCBFbWFyYXQgSW5zdXJhbmNlLXwxfDEyNTkxNjAwNTQg"; // <<< YOUR API KEY PLACEHOLDER
+
+            // For demonstration, using a fixed user ID. In a real app, this might be dynamic.
+            const AIRIA_USER_ID = "demo-user-" + Date.now(); // Slightly more unique demo user ID
+            // --- END CONFIGURATION ---
+
+            let isBotReplying = false; // To disable send button while waiting
+
+            function updateApiKeyStatus() {
+                if (AIRIA_API_KEY === "YOUR_AIRIA_API_KEY_HERE" || !AIRIA_API_KEY) {
+                    apiKeyStatusDisplay.textContent = "NOT SET (Placeholder in use)";
+                    apiKeyStatusDisplay.style.color = "orange";
+                    addMessageToChat("Please replace the placeholder API key in this HTML file's script section to connect to the backend.", "system");
+                    return false;
+                } else {
+                    apiKeyStatusDisplay.textContent = "SET (Using provided key)";
+                    apiKeyStatusDisplay.style.color = "lightgreen";
+                    return true;
+                }
+            }
+
+            function addMessageToChat(message, sender) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', sender);
+                messageElement.textContent = message;
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to bottom
+            }
+
+            function toggleSendButton(enable) {
+                sendButton.disabled = !enable;
+                userInput.disabled = !enable;
+            }
+
+            async function sendMessageToAPI(text) {
+                if (isBotReplying) return; // Don't send if bot is already replying
+
+                addMessageToChat(text, 'user');
+                userInput.value = ''; // Clear input field
+                addMessageToChat("Bot is thinking...", 'bot-typing');
+                isBotReplying = true;
+                toggleSendButton(false);
+
+
+                if (!updateApiKeyStatus()) { // Check API key status again before sending
+                    removeTypingIndicator();
+                    addMessageToChat("Cannot send message: API Key is not configured. Please update the script section in this HTML file.", 'bot');
+                    responseTimeDisplay.textContent = "N/A (API Key Missing)";
+                    isBotReplying = false;
+                    toggleSendButton(true);
+                    return;
+                }
+
+                const requestBody = {
+                    userId: AIRIA_USER_ID,
+                    userInput: text,
+                    asyncOutput: false
+                };
+
+                const startTime = performance.now();
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'X-API-KEY': AIRIA_API_KEY,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    const endTime = performance.now();
+                    const duration = ((endTime - startTime) / 1000).toFixed(2); // seconds
+                    responseTimeDisplay.textContent = `${duration} seconds`;
+
+                    removeTypingIndicator();
+
+                    if (!response.ok) {
+                        let errorDetails = `API Error: ${response.status} ${response.statusText}.`;
+                        try {
+                            const errorData = await response.json(); // Try to parse JSON error
+                            errorDetails += ` Details: ${JSON.stringify(errorData)}`;
+                        } catch (e) {
+                            const textError = await response.text(); // Fallback to text error
+                            errorDetails += ` Details: ${textError}`;
+                        }
+                        throw new Error(errorDetails);
+                    }
+
+                    const data = await response.json();
+
+                    if (data && typeof data.result !== 'undefined') { // Check if result exists, even if empty string
+                        addMessageToChat(data.result || "(Bot returned an empty message)", 'bot');
+                    } else {
+                        addMessageToChat("Received an unexpected response from the bot.", 'bot');
+                        console.warn("Unexpected API response structure:", data);
+                    }
+
+                } catch (error) {
+                    removeTypingIndicator();
+                    console.error("Error sending message:", error);
+                    addMessageToChat(`Error: ${error.message}`, 'bot');
+                    responseTimeDisplay.textContent = `Error`;
+                } finally {
+                    isBotReplying = false;
+                    toggleSendButton(true);
+                    userInput.focus(); // Re-focus input field
+                }
+            }
+
+            function removeTypingIndicator() {
+                const typingIndicator = chatMessages.querySelector('.bot-typing');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            function handleSend() {
+                const messageText = userInput.value.trim();
+                if (messageText) {
+                    sendMessageToAPI(messageText);
+                }
+            }
+
+            sendButton.addEventListener('click', handleSend);
+
+            userInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Prevent form submission if it were in a form
+                    handleSend();
+                }
+            });
+
+            // Initial setup
+            updateApiKeyStatus(); // Check API key on load
+            addMessageToChat("Hello! How can I help you today?", "bot");
+            userInput.focus();
+        });
+    </script>
+</body>
+</html>
