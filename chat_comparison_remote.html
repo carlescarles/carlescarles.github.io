@@ -5,132 +5,174 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot Comparison</title>
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
             margin: 0;
             padding: 0;
-            background-color: #f4f7f6;
+            background-color: #F8F9FA; /* Light gray background */
             display: flex;
             flex-direction: column;
             height: 100vh;
-            color: #333;
+            color: #343A40; /* Darker text for better contrast */
+            line-height: 1.6;
         }
 
         header {
-            background-color: #007bff;
-            color: white;
-            padding: 15px 20px;
+            background-color: #FFFFFF; /* White header */
+            color: #343A40;
+            padding: 20px 30px;
             text-align: center;
-            font-size: 1.5em;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 1.75em;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Softer shadow */
+            border-bottom: 1px solid #E9ECEF; /* Subtle border */
         }
 
         .comparison-container {
             display: flex;
             flex-grow: 1;
-            padding: 20px;
-            gap: 20px;
-            overflow-y: hidden; /* Prevent body scroll, let chat boxes scroll */
+            padding: 25px; /* Increased padding */
+            gap: 25px;     /* Increased gap */
+            overflow-y: hidden;
         }
 
         .chat-column {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow: hidden; /* Clip content */
+            background-color: #FFFFFF;
+            border-radius: 10px; /* Softer radius */
+            box-shadow: 0 3px 10px rgba(0,0,0,0.07); /* Softer, deeper shadow */
+            overflow: hidden;
         }
 
         .chat-column h2 {
-            background-color: #e9ecef;
-            color: #495057;
+            background-color: transparent; /* Cleaner title background */
+            color: #343A40;
             margin: 0;
-            padding: 10px 15px;
-            font-size: 1.1em;
-            border-bottom: 1px solid #dee2e6;
+            padding: 18px 20px;
+            font-size: 1.15em;
+            font-weight: 600;
+            border-bottom: 1px solid #F1F3F5; /* Very light border */
         }
 
         .messages {
             flex-grow: 1;
-            padding: 15px;
+            padding: 15px 20px; /* More horizontal padding */
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px; /* Slightly increased gap between messages */
+        }
+
+        /* Custom Scrollbar for WebKit browsers */
+        .messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        .messages::-webkit-scrollbar-thumb {
+            background-color: #D1D5DB; /* Medium gray scrollbar thumb */
+            border-radius: 3px;
+        }
+        .messages::-webkit-scrollbar-track {
+            background-color: #F8F9FA; /* Matches body background */
         }
 
         .message {
-            padding: 8px 12px;
-            border-radius: 15px;
+            padding: 10px 16px; /* Adjusted padding */
+            border-radius: 20px; /* More rounded messages */
             max-width: 80%;
             word-wrap: break-word;
-            line-height: 1.4;
+            line-height: 1.5;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08); /* Subtle shadow on messages */
         }
 
         .user-message {
-            background-color: #007bff;
+            background-color: #4A90E2; /* Modern blue accent */
             color: white;
             align-self: flex-end;
-            border-bottom-right-radius: 5px;
+            border-bottom-right-radius: 8px; /* Tail for user messages */
         }
 
         .bot-message {
-            background-color: #e9ecef;
-            color: #333;
+            background-color: #E9ECEF; /* Light gray for bot messages */
+            color: #343A40;
             align-self: flex-start;
-            border-bottom-left-radius: 5px;
+            border-bottom-left-radius: 8px; /* Tail for bot messages */
         }
         
         .bot-error-message {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: #FEE2E2; /* Lighter, softer red for errors */
+            color: #B91C1C; /* Dark red text for error */
             align-self: flex-start;
-            border: 1px solid #f5c6cb;
-            border-bottom-left-radius: 5px;
+            border: 1px solid #FCA5A5; /* Softer red border */
+            border-bottom-left-radius: 8px;
         }
 
         .message-meta {
             font-size: 0.75em;
-            color: #888;
             margin-top: 4px;
             display: block;
+            opacity: 0.9;
         }
         .bot-message .message-meta {
-            color: #555;
+            color: #6C757D; /* Gray for bot meta */
         }
-
+        .user-message .message-meta {
+            color: rgba(255, 255, 255, 0.8); /* Lighter for user meta */
+        }
+        
         .input-area {
             display: flex;
-            padding: 15px 20px;
-            background-color: #fff;
-            border-top: 1px solid #dee2e6;
-            box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
+            align-items: center; /* Align items vertically */
+            padding: 15px 25px; /* Adjusted padding */
+            background-color: #FFFFFF;
+            border-top: 1px solid #E9ECEF; /* Light top border */
+            box-shadow: 0 -2px 6px rgba(0,0,0,0.05); /* Subtle top shadow */
         }
 
         #userInput {
             flex-grow: 1;
-            padding: 10px 15px;
-            border: 1px solid #ced4da;
-            border-radius: 20px;
-            margin-right: 10px;
+            padding: 12px 20px; /* More padding */
+            border: 1px solid #DEE2E6; /* Lighter border */
+            border-radius: 22px; /* Rounded input */
+            margin-right: 12px; /* Increased margin */
             font-size: 1em;
+            background-color: #F8F9FA; /* Slight contrast for input bg */
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #userInput::placeholder {
+            color: #909090; /* Softer placeholder text */
+        }
+
+        #userInput:focus {
+            border-color: #4A90E2; /* Accent color on focus */
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25); /* Focus ring */
+            outline: none;
+            background-color: #FFFFFF;
         }
 
         #sendButton {
-            padding: 10px 20px;
-            background-color: #28a745;
+            padding: 12px 22px; /* Balanced padding */
+            background-color: #4A90E2; /* Modern blue accent */
             color: white;
             border: none;
-            border-radius: 20px;
+            border-radius: 22px; /* Rounded button */
             cursor: pointer;
             font-size: 1em;
-            transition: background-color 0.2s;
+            font-weight: 500; /* Slightly bolder text */
+            transition: background-color 0.2s ease, transform 0.1s ease;
         }
 
         #sendButton:hover {
-            background-color: #218838;
+            background-color: #357ABD; /* Darker shade on hover */
+        }
+        #sendButton:active {
+            transform: scale(0.97); /* Click feedback */
         }
     </style>
 </head>
@@ -161,26 +203,24 @@
         const airiaMessagesContainer = document.getElementById('airiaMessages');
         const cohereMessagesContainer = document.getElementById('cohereMessages');
 
-        // Generate unique conversation IDs for this session
         const airiaConversationId = generateUUID();
         const cohereConversationId = generateUUID();
 
-        function generateUUID() { // Public Domain/MIT
-            var d = new Date().getTime();//Timestamp
-            var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now()*1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
+        function generateUUID() { 
+            var d = new Date().getTime();
+            var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now()*1000)) || 0;
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16;//random number between 0 and 16
-                if(d > 0){//Use timestamp until depleted
+                var r = Math.random() * 16;
+                if(d > 0){
                     r = (d + r)%16 | 0;
                     d = Math.floor(d/16);
-                } else {//Use microseconds since page-load if supported
+                } else {
                     r = (d2 + r)%16 | 0;
                     d2 = Math.floor(d2/16);
                 }
                 return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
             });
         }
-
 
         sendButton.addEventListener('click', sendMessage);
         userInput.addEventListener('keypress', function(e) {
@@ -203,7 +243,13 @@
             }
             messageElement.classList.add(messageClass);
 
-            let htmlContent = text.replace(/\n/g, '<br>'); // Preserve newlines
+            // Sanitize text before inserting as HTML to prevent XSS if text can contain HTML
+            // For simplicity, assuming text is plain text. If it can contain HTML, use a sanitizer.
+            // const textNode = document.createTextNode(text);
+            // messageElement.appendChild(textNode);
+            // For newlines, we do need to replace them. If text is trusted, innerHTML is fine.
+            let htmlContent = text.replace(/\n/g, '<br>');
+
 
             if (timeTakenMs !== null) {
                 const timeInSeconds = (timeTakenMs / 1000).toFixed(2);
@@ -212,7 +258,7 @@
             
             messageElement.innerHTML = htmlContent;
             container.appendChild(messageElement);
-            container.scrollTop = container.scrollHeight; // Scroll to bottom
+            container.scrollTop = container.scrollHeight; 
         }
 
         async function sendMessage() {
@@ -222,9 +268,8 @@
             displayMessage(query, 'user', airiaMessagesContainer);
             displayMessage(query, 'user', cohereMessagesContainer);
 
-            userInput.value = ''; // Clear input
+            userInput.value = ''; 
 
-            // Call Airia API
             callBackend(
                 'https://ten-wasps-read.loca.lt/query_airia',
                 query,
@@ -233,7 +278,6 @@
                 'Airia'
             );
 
-            // Call Cohere API
             callBackend(
                 'https://ten-wasps-read.loca.lt/query_cohere',
                 query,
@@ -245,12 +289,11 @@
 
         async function callBackend(endpoint, query, conversationId, messagesContainer, botName) {
             const startTime = performance.now();
-            // Display a "thinking" message
             const thinkingMsgId = `thinking-${botName}-${Date.now()}`;
             const thinkingElement = document.createElement('div');
-            thinkingElement.classList.add('message', 'bot-message');
+            thinkingElement.classList.add('message', 'bot-message'); // Will adopt new bot-message style
             thinkingElement.id = thinkingMsgId;
-            thinkingElement.style.opacity = "0.7";
+            thinkingElement.style.opacity = "0.7"; // Keep opacity for differentiation
             thinkingElement.innerHTML = `${botName} is thinking...`;
             messagesContainer.appendChild(thinkingElement);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -272,7 +315,6 @@
                 const endTime = performance.now();
                 const timeTakenMs = endTime - startTime;
 
-                // Remove thinking message
                 const currentThinkingElement = document.getElementById(thinkingMsgId);
                 if (currentThinkingElement) {
                     currentThinkingElement.remove();
@@ -286,11 +328,6 @@
                 const data = await response.json();
                 if (data && typeof data.answer !== 'undefined') {
                     displayMessage(data.answer, botName, messagesContainer, timeTakenMs);
-                    // Note: The prompt says the response includes "conversation_id": "string".
-                    // If the backend sends back a *new* conversation_id to be used for the *next* turn,
-                    // you would update airiaConversationId or cohereConversationId here.
-                    // For now, we assume the initially generated ID is used throughout.
-                    // Example: if (botName === 'Airia' && data.conversation_id) airiaConversationId = data.conversation_id;
                 } else {
                     throw new Error('Invalid response format from API. Missing "answer".');
                 }
