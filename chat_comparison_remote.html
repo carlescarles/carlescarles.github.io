@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot Comparison</title>
+    <!-- Added marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         *, *::before, *::after {
             box-sizing: border-box;
@@ -13,30 +15,30 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
             margin: 0;
             padding: 0;
-            background-color: #F8F9FA; /* Light gray background */
+            background-color: #F8F9FA;
             display: flex;
             flex-direction: column;
             height: 100vh;
-            color: #343A40; /* Darker text for better contrast */
+            color: #343A40;
             line-height: 1.6;
         }
 
         header {
-            background-color: #FFFFFF; /* White header */
+            background-color: #FFFFFF;
             color: #343A40;
             padding: 20px 30px;
             text-align: center;
             font-size: 1.75em;
             font-weight: 600;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Softer shadow */
-            border-bottom: 1px solid #E9ECEF; /* Subtle border */
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-bottom: 1px solid #E9ECEF;
         }
 
         .comparison-container {
             display: flex;
             flex-grow: 1;
-            padding: 25px; /* Increased padding */
-            gap: 25px;     /* Increased gap */
+            padding: 25px;
+            gap: 25px;
             overflow-y: hidden;
         }
 
@@ -45,134 +47,209 @@
             display: flex;
             flex-direction: column;
             background-color: #FFFFFF;
-            border-radius: 10px; /* Softer radius */
-            box-shadow: 0 3px 10px rgba(0,0,0,0.07); /* Softer, deeper shadow */
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.07);
             overflow: hidden;
         }
 
         .chat-column h2 {
-            background-color: transparent; /* Cleaner title background */
+            background-color: transparent;
             color: #343A40;
             margin: 0;
             padding: 18px 20px;
             font-size: 1.15em;
             font-weight: 600;
-            border-bottom: 1px solid #F1F3F5; /* Very light border */
+            border-bottom: 1px solid #F1F3F5;
         }
 
         .messages {
             flex-grow: 1;
-            padding: 15px 20px; /* More horizontal padding */
+            padding: 15px 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px; /* Slightly increased gap between messages */
+            gap: 12px;
         }
 
-        /* Custom Scrollbar for WebKit browsers */
         .messages::-webkit-scrollbar {
             width: 6px;
         }
         .messages::-webkit-scrollbar-thumb {
-            background-color: #D1D5DB; /* Medium gray scrollbar thumb */
+            background-color: #D1D5DB;
             border-radius: 3px;
         }
         .messages::-webkit-scrollbar-track {
-            background-color: #F8F9FA; /* Matches body background */
+            background-color: #F8F9FA;
         }
 
         .message {
-            padding: 10px 16px; /* Adjusted padding */
-            border-radius: 20px; /* More rounded messages */
+            padding: 10px 16px;
+            border-radius: 20px;
             max-width: 80%;
-            word-wrap: break-word;
+            word-wrap: break-word; /* This is important for pre tags too */
             line-height: 1.5;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.08); /* Subtle shadow on messages */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
         }
 
         .user-message {
-            background-color: #4A90E2; /* Modern blue accent */
+            background-color: #4A90E2;
             color: white;
             align-self: flex-end;
-            border-bottom-right-radius: 8px; /* Tail for user messages */
+            border-bottom-right-radius: 8px;
         }
+        .user-message a { color: #E0EFFF; text-decoration: underline; }
+        .user-message a:hover { color: #FFFFFF; }
+
 
         .bot-message {
-            background-color: #E9ECEF; /* Light gray for bot messages */
+            background-color: #E9ECEF;
             color: #343A40;
             align-self: flex-start;
-            border-bottom-left-radius: 8px; /* Tail for bot messages */
+            border-bottom-left-radius: 8px;
         }
+        .bot-message a { color: #0056b3; text-decoration: underline; }
+        .bot-message a:hover { color: #003d80; }
         
         .bot-error-message {
-            background-color: #FEE2E2; /* Lighter, softer red for errors */
-            color: #B91C1C; /* Dark red text for error */
+            background-color: #FEE2E2;
+            color: #B91C1C;
             align-self: flex-start;
-            border: 1px solid #FCA5A5; /* Softer red border */
+            border: 1px solid #FCA5A5;
             border-bottom-left-radius: 8px;
+        }
+        .bot-error-message a { color: #991B1B; text-decoration: underline;}
+        .bot-error-message a:hover { color: #7F1D1D; }
+
+
+        .message-content {
+            /* This div will hold the parsed markdown */
         }
 
         .message-meta {
             font-size: 0.75em;
-            margin-top: 4px;
-            display: block;
+            margin-top: 4px; /* Kept for spacing if message is short */
+            display: inline; /* Changed to inline to append next to content */
             opacity: 0.9;
+            margin-left: 5px; /* Space between content and meta */
         }
         .bot-message .message-meta {
-            color: #6C757D; /* Gray for bot meta */
+            color: #6C757D;
         }
         .user-message .message-meta {
-            color: rgba(255, 255, 255, 0.8); /* Lighter for user meta */
+            color: rgba(255, 255, 255, 0.8);
         }
         
+        /* Markdown specific styling */
+        .message p:first-child { margin-top: 0; }
+        .message p:last-child { margin-bottom: 0; }
+
+        .message ul, .message ol {
+            padding-left: 20px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .message li {
+            margin-bottom: 2px;
+        }
+
+        .message code {
+            background-color: rgba(0,0,0,0.06);
+            padding: 0.1em 0.4em;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .message pre {
+            background-color: rgba(0,0,0,0.06);
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto; /* Allow horizontal scroll for long code lines */
+            margin: 8px 0;
+            font-size: 0.9em;
+            white-space: pre-wrap; /* Wrap long lines but preserve spaces */
+            word-wrap: break-word; /* Break words if they are too long */
+        }
+        .message pre code {
+            background-color: transparent; /* No double background */
+            padding: 0;
+            font-size: inherit; /* Inherit pre's font size */
+            white-space: pre-wrap; /* Ensure this for code inside pre */
+        }
+
+        .message blockquote {
+            border-left: 3px solid #ADB5BD;
+            padding-left: 10px;
+            margin-left: 0;
+            margin-right: 0;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            color: #495057;
+            font-style: italic;
+        }
+        .message blockquote p {
+            margin-bottom: 0.2em;
+        }
+
+        .message h1, .message h2, .message h3, .message h4, .message h5, .message h6 {
+            margin-top: 0.5em;
+            margin-bottom: 0.2em;
+            font-weight: 600;
+        }
+        .message h1 { font-size: 1.4em; }
+        .message h2 { font-size: 1.3em; }
+        .message h3 { font-size: 1.2em; }
+        /* Smaller headings might be less common in chat, but styled just in case */
+        .message h4 { font-size: 1.1em; }
+        .message h5 { font-size: 1em; }
+        .message h6 { font-size: 0.9em; }
+
         .input-area {
             display: flex;
-            align-items: center; /* Align items vertically */
-            padding: 15px 25px; /* Adjusted padding */
+            align-items: center;
+            padding: 15px 25px;
             background-color: #FFFFFF;
-            border-top: 1px solid #E9ECEF; /* Light top border */
-            box-shadow: 0 -2px 6px rgba(0,0,0,0.05); /* Subtle top shadow */
+            border-top: 1px solid #E9ECEF;
+            box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
         }
 
         #userInput {
             flex-grow: 1;
-            padding: 12px 20px; /* More padding */
-            border: 1px solid #DEE2E6; /* Lighter border */
-            border-radius: 22px; /* Rounded input */
-            margin-right: 12px; /* Increased margin */
+            padding: 12px 20px;
+            border: 1px solid #DEE2E6;
+            border-radius: 22px;
+            margin-right: 12px;
             font-size: 1em;
-            background-color: #F8F9FA; /* Slight contrast for input bg */
+            background-color: #F8F9FA;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         #userInput::placeholder {
-            color: #909090; /* Softer placeholder text */
+            color: #909090;
         }
 
         #userInput:focus {
-            border-color: #4A90E2; /* Accent color on focus */
-            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25); /* Focus ring */
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
             outline: none;
             background-color: #FFFFFF;
         }
 
         #sendButton {
-            padding: 12px 22px; /* Balanced padding */
-            background-color: #4A90E2; /* Modern blue accent */
+            padding: 12px 22px;
+            background-color: #4A90E2;
             color: white;
             border: none;
-            border-radius: 22px; /* Rounded button */
+            border-radius: 22px;
             cursor: pointer;
             font-size: 1em;
-            font-weight: 500; /* Slightly bolder text */
+            font-weight: 500;
             transition: background-color 0.2s ease, transform 0.1s ease;
         }
 
         #sendButton:hover {
-            background-color: #357ABD; /* Darker shade on hover */
+            background-color: #357ABD;
         }
         #sendButton:active {
-            transform: scale(0.97); /* Click feedback */
+            transform: scale(0.97);
         }
     </style>
 </head>
@@ -205,6 +282,17 @@
 
         const airiaConversationId = generateUUID();
         const cohereConversationId = generateUUID();
+
+        // Configure marked options
+        // Using `marked.use` for newer versions of marked to set options globally
+        // or pass options directly to `marked.parse()`
+        const markedOptions = {
+            breaks: true, // Treat GFM newlines as <br>
+            gfm: true,    // Enable GitHub Flavored Markdown
+            mangle: false, // Important for not mangling email addresses if they appear
+            headerIds: false // Disable automatic ID generation for headers
+        };
+
 
         function generateUUID() { 
             var d = new Date().getTime();
@@ -243,20 +331,37 @@
             }
             messageElement.classList.add(messageClass);
 
-            // Sanitize text before inserting as HTML to prevent XSS if text can contain HTML
-            // For simplicity, assuming text is plain text. If it can contain HTML, use a sanitizer.
-            // const textNode = document.createTextNode(text);
-            // messageElement.appendChild(textNode);
-            // For newlines, we do need to replace them. If text is trusted, innerHTML is fine.
-            let htmlContent = text.replace(/\n/g, '<br>');
-
+            // Create a div for the parsed Markdown content
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('message-content');
+            
+            // Parse the text as Markdown and set it as innerHTML for the content div
+            // For user messages, we also parse, in case they type markdown.
+            // If you want user messages to be plain text, you'd conditionally parse.
+            if (typeof marked !== 'undefined') {
+                contentDiv.innerHTML = marked.parse(text, markedOptions);
+            } else {
+                // Fallback if marked.js is not loaded (should not happen with CDN)
+                // Or treat as plain text: escape HTML characters
+                const tempDiv = document.createElement('div');
+                tempDiv.textContent = text;
+                contentDiv.innerHTML = tempDiv.innerHTML.replace(/\n/g, '<br>');
+            }
+            messageElement.appendChild(contentDiv);
 
             if (timeTakenMs !== null) {
+                const metaSpan = document.createElement('span');
+                metaSpan.classList.add('message-meta');
                 const timeInSeconds = (timeTakenMs / 1000).toFixed(2);
-                htmlContent += `<span class="message-meta">(${timeInSeconds}s)</span>`;
+                metaSpan.textContent = `(${timeInSeconds}s)`;
+                // Append metaSpan after the contentDiv, but still within messageElement
+                // This makes it easier to style its position relative to the last line of content.
+                // For simplicity, appending directly. More complex layout might need different structure.
+                contentDiv.appendChild(metaSpan); 
+                // If you want meta on its own line or always at the bottom, append to messageElement:
+                // messageElement.appendChild(metaSpan);
             }
             
-            messageElement.innerHTML = htmlContent;
             container.appendChild(messageElement);
             container.scrollTop = container.scrollHeight; 
         }
@@ -265,13 +370,14 @@
             const query = userInput.value.trim();
             if (!query) return;
 
+            // Display user message (will be parsed as markdown)
             displayMessage(query, 'user', airiaMessagesContainer);
             displayMessage(query, 'user', cohereMessagesContainer);
 
             userInput.value = ''; 
 
             callBackend(
-                'https://ten-wasps-read.loca.lt/query_airia',
+                'https://ten-wasps-read.loca.lt/query_airia', // Replace with your actual endpoint
                 query,
                 airiaConversationId,
                 airiaMessagesContainer,
@@ -279,7 +385,7 @@
             );
 
             callBackend(
-                'https://ten-wasps-read.loca.lt/query_cohere',
+                'https://ten-wasps-read.loca.lt/query_cohere', // Replace with your actual endpoint
                 query,
                 cohereConversationId,
                 cohereMessagesContainer,
@@ -291,10 +397,15 @@
             const startTime = performance.now();
             const thinkingMsgId = `thinking-${botName}-${Date.now()}`;
             const thinkingElement = document.createElement('div');
-            thinkingElement.classList.add('message', 'bot-message'); // Will adopt new bot-message style
+            thinkingElement.classList.add('message', 'bot-message'); 
             thinkingElement.id = thinkingMsgId;
-            thinkingElement.style.opacity = "0.7"; // Keep opacity for differentiation
-            thinkingElement.innerHTML = `${botName} is thinking...`;
+            thinkingElement.style.opacity = "0.7"; 
+            // Thinking message is plain text, not markdown
+            const thinkingContentDiv = document.createElement('div');
+            thinkingContentDiv.classList.add('message-content');
+            thinkingContentDiv.textContent = `${botName} is thinking...`;
+            thinkingElement.appendChild(thinkingContentDiv);
+
             messagesContainer.appendChild(thinkingElement);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -304,7 +415,7 @@
                     headers: {
                         'accept': 'application/json',
                         'Content-Type': 'application/json',
-                        'bypass-tunnel-reminder': 'abc'
+                        'bypass-tunnel-reminder': 'abc' // For localtunnel, if used
                     },
                     body: JSON.stringify({
                         query: query,
@@ -341,6 +452,7 @@
                 if (currentThinkingElement) {
                     currentThinkingElement.remove();
                 }
+                // Error message is also parsed as markdown, in case error details contain it
                 displayMessage(`Error: ${error.message}`, botName, messagesContainer, timeTakenMs, true);
             }
         }
