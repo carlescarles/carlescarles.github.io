@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Comparison</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            color: #333;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1.5em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .comparison-container {
+            display: flex;
+            flex-grow: 1;
+            padding: 20px;
+            gap: 20px;
+            overflow-y: hidden; /* Prevent body scroll, let chat boxes scroll */
+        }
+
+        .chat-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden; /* Clip content */
+        }
+
+        .chat-column h2 {
+            background-color: #e9ecef;
+            color: #495057;
+            margin: 0;
+            padding: 10px 15px;
+            font-size: 1.1em;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            background-color: #e9ecef;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .bot-error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            align-self: flex-start;
+            border: 1px solid #f5c6cb;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-meta {
+            font-size: 0.75em;
+            color: #888;
+            margin-top: 4px;
+            display: block;
+        }
+        .bot-message .message-meta {
+            color: #555;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 15px 20px;
+            background-color: #fff;
+            border-top: 1px solid #dee2e6;
+            box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
+        }
+
+        #userInput {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 1em;
+        }
+
+        #sendButton {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s;
+        }
+
+        #sendButton:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Chatbot Comparison
+    </header>
+
+    <div class="comparison-container">
+        <div class="chat-column">
+            <h2>Chatbot 1: Airia</h2>
+            <div class="messages" id="airiaMessages"></div>
+        </div>
+        <div class="chat-column">
+            <h2>Chatbot 2: Cohere</h2>
+            <div class="messages" id="cohereMessages"></div>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button id="sendButton">Send</button>
+    </div>
+
+    <script>
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const airiaMessagesContainer = document.getElementById('airiaMessages');
+        const cohereMessagesContainer = document.getElementById('cohereMessages');
+
+        // Generate unique conversation IDs for this session
+        const airiaConversationId = generateUUID();
+        const cohereConversationId = generateUUID();
+
+        function generateUUID() { // Public Domain/MIT
+            var d = new Date().getTime();//Timestamp
+            var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now()*1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16;//random number between 0 and 16
+                if(d > 0){//Use timestamp until depleted
+                    r = (d + r)%16 | 0;
+                    d = Math.floor(d/16);
+                } else {//Use microseconds since page-load if supported
+                    r = (d2 + r)%16 | 0;
+                    d2 = Math.floor(d2/16);
+                }
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+        }
+
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function displayMessage(text, sender, container, timeTakenMs = null, isError = false) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            
+            let messageClass = '';
+            if (sender === 'user') {
+                messageClass = 'user-message';
+            } else if (isError) {
+                messageClass = 'bot-error-message';
+            } else {
+                messageClass = 'bot-message';
+            }
+            messageElement.classList.add(messageClass);
+
+            let htmlContent = text.replace(/\n/g, '<br>'); // Preserve newlines
+
+            if (timeTakenMs !== null) {
+                const timeInSeconds = (timeTakenMs / 1000).toFixed(2);
+                htmlContent += `<span class="message-meta">(${timeInSeconds}s)</span>`;
+            }
+            
+            messageElement.innerHTML = htmlContent;
+            container.appendChild(messageElement);
+            container.scrollTop = container.scrollHeight; // Scroll to bottom
+        }
+
+        async function sendMessage() {
+            const query = userInput.value.trim();
+            if (!query) return;
+
+            displayMessage(query, 'user', airiaMessagesContainer);
+            displayMessage(query, 'user', cohereMessagesContainer);
+
+            userInput.value = ''; // Clear input
+
+            // Call Airia API
+            callBackend(
+                'https://ten-wasps-read.loca.lt/query_airia',
+                query,
+                airiaConversationId,
+                airiaMessagesContainer,
+                'Airia'
+            );
+
+            // Call Cohere API
+            callBackend(
+                'https://ten-wasps-read.loca.lt/query_cohere',
+                query,
+                cohereConversationId,
+                cohereMessagesContainer,
+                'Cohere'
+            );
+        }
+
+        async function callBackend(endpoint, query, conversationId, messagesContainer, botName) {
+            const startTime = performance.now();
+            // Display a "thinking" message
+            const thinkingMsgId = `thinking-${botName}-${Date.now()}`;
+            const thinkingElement = document.createElement('div');
+            thinkingElement.classList.add('message', 'bot-message');
+            thinkingElement.id = thinkingMsgId;
+            thinkingElement.style.opacity = "0.7";
+            thinkingElement.innerHTML = `${botName} is thinking...`;
+            messagesContainer.appendChild(thinkingElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        conversation_id: conversationId
+                    })
+                });
+
+                const endTime = performance.now();
+                const timeTakenMs = endTime - startTime;
+
+                // Remove thinking message
+                const currentThinkingElement = document.getElementById(thinkingMsgId);
+                if (currentThinkingElement) {
+                    currentThinkingElement.remove();
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API Error: ${response.status} - ${errorText || 'Unknown error'}`);
+                }
+
+                const data = await response.json();
+                if (data && typeof data.answer !== 'undefined') {
+                    displayMessage(data.answer, botName, messagesContainer, timeTakenMs);
+                    // Note: The prompt says the response includes "conversation_id": "string".
+                    // If the backend sends back a *new* conversation_id to be used for the *next* turn,
+                    // you would update airiaConversationId or cohereConversationId here.
+                    // For now, we assume the initially generated ID is used throughout.
+                    // Example: if (botName === 'Airia' && data.conversation_id) airiaConversationId = data.conversation_id;
+                } else {
+                    throw new Error('Invalid response format from API. Missing "answer".');
+                }
+
+            } catch (error) {
+                const endTime = performance.now();
+                const timeTakenMs = endTime - startTime;
+                console.error(`${botName} API call failed:`, error);
+
+                const currentThinkingElement = document.getElementById(thinkingMsgId);
+                if (currentThinkingElement) {
+                    currentThinkingElement.remove();
+                }
+                displayMessage(`Error: ${error.message}`, botName, messagesContainer, timeTakenMs, true);
+            }
+        }
+    </script>
+</body>
+</html>
